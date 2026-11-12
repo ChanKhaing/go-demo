@@ -1,0 +1,33 @@
+name: Dev Build
+
+on:
+  push:
+    branches:
+      - 'dev-*'
+    paths:
+      - '01-go-api/**'
+      - '02-rust-api/**'
+      - '03-python-api/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed service
+        id: detect
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          case $BRANCH in
+            dev-goapi)     echo "dir=01-go-api" >> $GITHUB_OUTPUT ;;
+            dev-rustapi)   echo "dir=02-rust-api" >> $GITHUB_OUTPUT ;;
+            dev-pythonapi) echo "dir=03-python-api" >> $GITHUB_OUTPUT ;;
+            *)             echo "dir=." >> $GITHUB_OUTPUT ;;
+          esac
+
+      - name: Build Docker image
+        run: |
+          docker build -t test-${{ steps.detect.outputs.dir }}:${{ github.sha }} \
+            ./${{ steps.detect.outputs.dir }}
+          echo "✅ Build successful: ${{ steps.detect.outputs.dir }}"
