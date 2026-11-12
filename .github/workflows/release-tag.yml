@@ -1,0 +1,93 @@
+name: Create Release & Deploy to ECR
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (ဥပမာ - v1.0.0)'
+        required: true
+        type: string
+      service:
+        description: 'ဘယ် service တွေကို deploy လုပ်မလဲ?'
+        required: true
+        type: choice
+        options:
+          - all
+          - go-api
+          - rust-api
+          - python-api
+
+env:
+  AWS_REGION: ap-southeast-2
+  ECR_REGISTRY: 880453911229.dkr.ecr.ap-southeast-2.amazonaws.com
+  ECR_REPO: gitops-repo
+
+jobs:
+ 
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Tag
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a $VERSION -m "Release $VERSION"
+          git push origin $VERSION
+          echo "✅ Tag $VERSION created successfully!"
+
+  # အဆင့် ၂: ECR ဆီ Build & Push လုပ်ခြင်း (Tag ဆောက်ပြီးမှ အလုပ်လုပ်မယ်)
+  deploy-to-ecr:
+    needs: create-tag # create-tag ပြီးမှ စမယ်
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push to ECR
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          VERSION: ${{ github.event.inputs.version }} # Tag နာမည်ကို Image Tag အဖြစ် သုံးမယ်
+        run: |
+          deploy() {
+            DIR=$1
+            SERVICE_NAME=$2
+            echo "🚀 Building $SERVICE_NAME with version $VERSION..."
+            
+            # Image Tag ကို Version (ဥပမာ - v1.0.0) နဲ့ latest နှစ်ခုလုံး ပေးမယ်
+            docker build -t $ECR_REGISTRY/$ECR_REPO:$SERVICE_NAME-$VERSION ./$DIR
+            docker build -t $ECR_REGISTRY/$ECR_REPO:$SERVICE_NAME-latest ./$DIR
+            
+            docker push $ECR_REGISTRY/$ECR_REPO:$SERVICE_NAME-$VERSION
+            docker push $ECR_REGISTRY/$ECR_REPO:$SERVICE_NAME-latest
+            
+            echo "✅ Pushed $SERVICE_NAME-$VERSION to ECR"
+          }
+
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "go-api" ]; then
+            deploy "01-go-api" "go-api"
+          fi
+          
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "rust-api" ]; then
+            deploy "02-rust-api" "rust-api"
+          fi
+          
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "python-api" ]; then
+            deploy "03-python-api" "python-api"
+          fi
