@@ -1,0 +1,71 @@
+name: Main Deploy to ECR
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'ECR ဆီ တင်မယ့် Service'
+        required: true
+        type: choice
+        options:
+          - all
+          - go-api
+          - rust-api
+          - python-api
+
+env:
+  AWS_REGION: ap-southeast-2 
+  ECR_REGISTRY: 880453911229.dkr.ecr.ap-southeast-2.amazonaws.com 
+  ECR_REPO: gitops-repo 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push to ECR
+        env:
+          SERVICE: ${{ github.event.inputs.service }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          deploy() {
+            DIR=$1
+            SERVICE_NAME=$2
+            
+            echo "🚀 Building $SERVICE_NAME from $DIR..."
+            
+            TAG="$SERVICE_NAME-$IMAGE_TAG"
+            LATEST_TAG="$SERVICE_NAME-latest"
+
+            docker build -t $ECR_REGISTRY/$ECR_REPO:$TAG ./$DIR
+            docker build -t $ECR_REGISTRY/$ECR_REPO:$LATEST_TAG ./$DIR
+            
+            docker push $ECR_REGISTRY/$ECR_REPO:$TAG
+            docker push $ECR_REGISTRY/$ECR_REPO:$LATEST_TAG
+            
+            echo "✅ Successfully pushed $SERVICE_NAME to $ECR_REPO"
+          }
+
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "go-api" ]; then
+            deploy "01-go-api" "go-api"
+          fi
+          
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "rust-api" ]; then
+            deploy "02-rust-api" "rust-api"
+          fi
+          
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "python-api" ]; then
+            deploy "03-python-api" "python-api"
+          fi
