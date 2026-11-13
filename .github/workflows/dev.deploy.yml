@@ -8,6 +8,7 @@ on:
       - '01-go-api/**'
       - '02-rust-api/**'
       - '03-python-api/**'
+      - '04-ecs-backend/**'
 
 jobs:
   build:
@@ -23,6 +24,7 @@ jobs:
             dev-goapi)     echo "dir=01-go-api" >> $GITHUB_OUTPUT ;;
             dev-rustapi)   echo "dir=02-rust-api" >> $GITHUB_OUTPUT ;;
             dev-pythonapi) echo "dir=03-python-api" >> $GITHUB_OUTPUT ;;
+            dev-ecsbackend) echo "dir=04-ecs-backend" >> $GITHUB_OUTPUT ;;
             *)             echo "dir=." >> $GITHUB_OUTPUT ;;
           esac
 

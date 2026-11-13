@@ -12,6 +12,7 @@ on:
           - go-api
           - rust-api
           - python-api
+          - ecs-backend
 
 env:
   AWS_REGION: ap-southeast-2 
@@ -68,4 +69,8 @@ jobs:
           
           if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "python-api" ]; then
             deploy "03-python-api" "python-api"
+          fi
+
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-backend" ]; then
+            deploy "04-ecs-backend" "ecs-backend"
           fi
