@@ -19,7 +19,7 @@ jobs:
         run: |
           BRANCH=${GITHUB_REF#refs/heads/}
           case $BRANCH in
-            dev-ecs-frontend) echo "dir=05-ecs-frontend" >> $GITHUB_OUTPUT ;;
+            dev-ecs-frontend) echo "dir=ecs-frontend" >> $GITHUB_OUTPUT ;;
             dev-ecs-backend) echo "dir=04-ecs-backend" >> $GITHUB_OUTPUT ;;
             *)             echo "dir=." >> $GITHUB_OUTPUT ;;
           esac

@@ -105,5 +105,5 @@ jobs:
           fi
 
           if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-frontend" ]; then
-            deploy "05-ecs-frontend" "ecs-frontend"
+            deploy "ecs-frontend" "ecs-frontend"
           fi
