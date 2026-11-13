@@ -5,10 +5,8 @@ on:
     branches:
       - 'dev-*'
     paths:
-      - '01-go-api/**'
-      - '02-rust-api/**'
-      - '03-python-api/**'
-      - '04-ecs-backend/**'
+      - 'ecs-backend/**'
+      - 'ecs-frontend/**'
 
 jobs:
   build:
@@ -21,10 +19,8 @@ jobs:
         run: |
           BRANCH=${GITHUB_REF#refs/heads/}
           case $BRANCH in
-            dev-goapi)     echo "dir=01-go-api" >> $GITHUB_OUTPUT ;;
-            dev-rustapi)   echo "dir=02-rust-api" >> $GITHUB_OUTPUT ;;
-            dev-pythonapi) echo "dir=03-python-api" >> $GITHUB_OUTPUT ;;
-            dev-ecsbackend) echo "dir=04-ecs-backend" >> $GITHUB_OUTPUT ;;
+            dev-ecs-frontend) echo "dir=05-ecs-frontend" >> $GITHUB_OUTPUT ;;
+            dev-ecs-backend) echo "dir=04-ecs-backend" >> $GITHUB_OUTPUT ;;
             *)             echo "dir=." >> $GITHUB_OUTPUT ;;
           esac
 

@@ -17,6 +17,7 @@ on:
           - rust-api
           - python-api
           - ecs-backend
+          - ecs-frontend
 
 permissions:
   contents: write
@@ -101,4 +102,8 @@ jobs:
 
           if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-backend" ]; then
             deploy "04-ecs-backend" "ecs-backend"
+          fi
+
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-frontend" ]; then
+            deploy "05-ecs-frontend" "ecs-frontend"
           fi
