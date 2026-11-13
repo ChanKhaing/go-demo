@@ -13,6 +13,7 @@ on:
           - rust-api
           - python-api
           - ecs-backend
+          - ecs-frontend
 
 jobs:
   build-push:
@@ -43,3 +44,4 @@ jobs:
           if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "rust-api" ]; then deploy "02-rust-api" "rust-api"; fi
           if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "python-api" ]; then deploy "03-python-api" "python-api"; fi
           if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-backend" ]; then deploy "04-ecs-backend" "ecs-backend"; fi
+          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-frontend" ]; then deploy "05-ecs-frontend" "ecs-frontend"; fi
