@@ -13,7 +13,6 @@ on:
           - rust-api
           - python-api
           - ecs-backend
-          - ecs-frontend
 
 env:
   AWS_REGION: ap-southeast-2 
@@ -76,6 +75,3 @@ jobs:
             deploy "04-ecs-backend" "ecs-backend"
           fi
 
-          if [ "$SERVICE" = "all" ] || [ "$SERVICE" = "ecs-frontend" ]; then
-            deploy "ecs-frontend" "ecs-frontend"
-          fi
