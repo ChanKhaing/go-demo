@@ -27,7 +27,7 @@ jobs:
       - name: Build and Push Frontend to ECR
         env:
           # ဒီနေရာမှာ Prod (Main) Backend URL ကို ထည့်ပါ
-          VITE_API_URL: "ecs-service-alb-1778369978.ap-southeast-2.elb.amazonaws.com" 
+          VITE_API_URL: "http://chanecs-backend-alb-1730502498.ap-southeast-2.elb.amazonaws.com" 
           IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "🚀 Building Frontend for Production..."
