@@ -1,0 +1,42 @@
+name: Main Frontend Deploy to ECR
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-southeast-2
+  ECR_REGISTRY: 880453911229.dkr.ecr.ap-southeast-2.amazonaws.com
+  ECR_REPO: ecs-frontend
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Frontend to ECR
+        env:
+          # ဒီနေရာမှာ Prod (Main) Backend URL ကို ထည့်ပါ
+          VITE_API_URL: "ecs-service-alb-1778369978.ap-southeast-2.elb.amazonaws.com" 
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "🚀 Building Frontend for Production..."
+          
+          docker build \
+            --build-arg VITE_API_URL="$VITE_API_URL" \
+            -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG \
+            -t $ECR_REGISTRY/$ECR_REPO:latest \
+            ./ecs-frontend
+            
+          docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPO:latest
