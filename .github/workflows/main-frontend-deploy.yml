@@ -6,7 +6,7 @@ on:
 env:
   AWS_REGION: ap-southeast-2
   ECR_REGISTRY: 880453911229.dkr.ecr.ap-southeast-2.amazonaws.com
-  ECR_REPO: ecs-frontend
+  ECR_REPO: gitops-repo
 
 jobs:
   build-and-push:
